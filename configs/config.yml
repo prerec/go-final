@@ -1,0 +1,9 @@
+port: "7540"
+
+db:
+db_driver: "sqlite3"
+db_port: ""
+db_username: ""
+db_password: ""
+db_name: "scheduler.db"
+db_ssl_mode: ""
