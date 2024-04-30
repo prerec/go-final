@@ -11,6 +11,7 @@ type TodoTask interface {
 	Search(query string) ([]todo.Task, error)
 	GetByID(id int) (todo.Task, error)
 	Update(id int, task todo.Task) error
+	Delete(id int) error
 }
 
 type Repository struct {

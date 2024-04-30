@@ -32,3 +32,7 @@ func (s *TodoTaskService) GetByID(id int) (todo.Task, error) {
 func (s *TodoTaskService) Update(id int, task todo.Task) error {
 	return s.repo.Update(id, task)
 }
+
+func (s *TodoTaskService) Delete(id int) error {
+	return s.repo.Delete(id)
+}

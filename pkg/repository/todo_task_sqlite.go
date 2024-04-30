@@ -112,3 +112,12 @@ func (r *TodoTaskSqlite) Update(id int, task todo.Task) error {
 	_, err := r.db.Exec(query, args...)
 	return err
 }
+
+func (r *TodoTaskSqlite) Delete(id int) error {
+	deleteTaskQuery := fmt.Sprintf("DELETE FROM %s WHERE id = ?", schedulerTable)
+	_, err := r.db.Exec(deleteTaskQuery, id)
+	if err != nil {
+		return err
+	}
+	return err
+}

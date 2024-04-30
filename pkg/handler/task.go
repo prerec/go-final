@@ -127,8 +127,52 @@ func (h *Handler) updateTask(c *gin.Context) {
 	})
 }
 
-func (h *Handler) deleteTask(c *gin.Context) {
+func (h *Handler) doneTask(c *gin.Context) {
+	idQuery := c.Query("id")
+	id, err := strconv.Atoi(idQuery)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "invalid id")
+	}
+	task, err := h.services.TodoTask.GetByID(id)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "task not found")
+		return
+	}
+	if task.Repeat != "" {
+		task.Date, err = getNextDate(time.Now(), task.Date, task.Repeat, timeLayout)
+		if err != nil {
+			newErrorResponse(c, http.StatusInternalServerError, "invalid date")
+			return
+		}
+		err = h.services.Update(id, task)
+		if err != nil {
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{})
+		return
+	}
+	err = h.services.Delete(id)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{})
+}
 
+func (h *Handler) deleteTask(c *gin.Context) {
+	idQuery := c.Query("id")
+	id, err := strconv.Atoi(idQuery)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "invalid id")
+		return
+	}
+	err = h.services.Delete(id)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{})
 }
 
 func (h *Handler) nextDate(c *gin.Context) {
