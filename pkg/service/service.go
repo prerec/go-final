@@ -8,6 +8,7 @@ import (
 type TodoTask interface {
 	Create(task todo.Task) (int, error)
 	GetAll() ([]todo.Task, error)
+	Search(query string) ([]todo.Task, error)
 	GetByID(id int) (todo.Task, error)
 }
 

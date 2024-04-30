@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	todo "github.com/prerec/go-final"
+	"time"
 )
 
 type TodoTaskSqlite struct {
@@ -33,13 +34,25 @@ func (r *TodoTaskSqlite) GetAll() ([]todo.Task, error) {
 	return tasks, err
 }
 
-func (r *TodoTaskSqlite) Search(search string) ([]todo.Task, error) {
+func (r *TodoTaskSqlite) Search(query string) ([]todo.Task, error) {
 	var tasks []todo.Task
+	var searchTaskQuery string
 
-	getTasksQuery := fmt.Sprintf("SELECT * FROM %s WHERE title LIKE ? OR comment LIKE ? ORDER BY date LIMIT ?", schedulerTable)
-	err := r.db.Select(&tasks, getTasksQuery, search, search, search)
+	parsedDate, err := time.Parse("02.01.2006", query)
+	if err == nil {
+		searchDate := parsedDate.Format("20060102")
+		searchTaskQuery = fmt.Sprintf("SELECT * FROM %s WHERE date = ?", schedulerTable)
+		err = r.db.Select(&tasks, searchTaskQuery, searchDate)
+	} else {
+		searchTaskQuery = fmt.Sprintf("SELECT * FROM %s WHERE title LIKE ? OR comment LIKE ?", schedulerTable)
+		err = r.db.Select(&tasks, searchTaskQuery, "%"+query+"%", "%"+query+"%")
+	}
 
-	return tasks, err
+	if err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
 }
 
 func (r *TodoTaskSqlite) GetByID(id int) (todo.Task, error) {

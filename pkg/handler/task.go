@@ -57,6 +57,23 @@ func (h *Handler) createTask(c *gin.Context) {
 }
 
 func (h *Handler) getAllTasks(c *gin.Context) {
+
+	search := c.Query("search")
+	if search != "" {
+		tasks, err := h.services.TodoTask.Search(search)
+		if err != nil {
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
+			return
+		}
+		if len(tasks) == 0 {
+			tasks = make([]todo.Task, 0)
+		}
+		c.JSON(http.StatusOK, getAllTasksResponse{
+			Tasks: tasks,
+		})
+		return
+	}
+
 	tasks, err := h.services.TodoTask.GetAll()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())

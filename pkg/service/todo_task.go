@@ -21,6 +21,10 @@ func (s *TodoTaskService) GetAll() ([]todo.Task, error) {
 	return s.repo.GetAll()
 }
 
+func (s *TodoTaskService) Search(query string) ([]todo.Task, error) {
+	return s.repo.Search(query)
+}
+
 func (s *TodoTaskService) GetByID(id int) (todo.Task, error) {
 	return s.repo.GetByID(id)
 }
