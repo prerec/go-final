@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	_ "github.com/mattn/go-sqlite3"
 	todo "github.com/prerec/go-final"
 	"github.com/prerec/go-final/pkg/handler"
@@ -8,6 +9,9 @@ import (
 	"github.com/prerec/go-final/pkg/service"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 func main() {
@@ -32,9 +36,26 @@ func main() {
 	handlers := handler.NewHandler(services)
 
 	srv := new(todo.Server)
-	if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
-		logrus.Fatalf("error occurred while running server: %s", err.Error())
+	go func() {
+		if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
+			logrus.Fatalf("error occurred while running server: %s", err.Error())
+		}
+	}()
+
+	logrus.Print("Application started")
+
+	quit := make(chan os.Signal)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+
+	logrus.Print("Application shutting down")
+	if err := srv.Shutdown(context.Background()); err != nil {
+		logrus.Fatalf("server shutdown fail: %s", err.Error())
 	}
+	if err := db.Close(); err != nil {
+		logrus.Fatalf("database connection close fail: %s", err.Error())
+	}
+
 }
 
 func initConfig() error {

@@ -29,6 +29,15 @@ func repeatValidate(repeat string) error {
 			return errors.New("days cannot be greater than 400")
 		}
 	}
+	if strings.Contains(repeat, "w ") {
+		for _, weekdayString := range strings.Split(strings.TrimPrefix(repeat, "w "), ",") {
+			weekdayInt, _ := strconv.Atoi(weekdayString)
+			if weekdayInt < 1 || weekdayInt > 7 {
+				return errors.New("weekdays must be between 1 and 7")
+			}
+		}
+		return nil
+	}
 	if !strings.Contains(repeat, "d ") && repeat != "y" {
 		return errors.New("repeat rule is invalid")
 	}
