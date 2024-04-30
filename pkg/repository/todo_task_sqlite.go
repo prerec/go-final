@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"fmt"
 	"github.com/jmoiron/sqlx"
 	todo "github.com/prerec/go-final"
@@ -62,4 +63,52 @@ func (r *TodoTaskSqlite) GetByID(id int) (todo.Task, error) {
 	err := r.db.Get(&task, getTaskByIdQuery, id)
 
 	return task, err
+}
+
+func (r *TodoTaskSqlite) Update(id int, task todo.Task) error {
+
+	if err := repeatValidate(task.Repeat); err != nil {
+		return err
+	}
+	if err := titleValidate(task.Title); err != nil {
+		return err
+	}
+	if err := dateValidate(task.Date); err != nil {
+		return err
+	}
+
+	query := fmt.Sprintf("UPDATE %s SET ", schedulerTable)
+	var args []interface{}
+	hasUpdates := false
+
+	if task.Date != "" {
+		query += "date=?, "
+		args = append(args, task.Date)
+		hasUpdates = true
+	}
+	if task.Title != "" {
+		query += "title=?, "
+		args = append(args, task.Title)
+		hasUpdates = true
+	}
+	if task.Comment != "" {
+		query += "comment=?, "
+		args = append(args, task.Comment)
+		hasUpdates = true
+	}
+	if task.Repeat != "" {
+		query += "repeat=?, "
+		args = append(args, task.Repeat)
+		hasUpdates = true
+	}
+
+	if !hasUpdates {
+		return errors.New("no fields to update")
+	}
+
+	query = query[:len(query)-2] + " WHERE id=?"
+	args = append(args, id)
+
+	_, err := r.db.Exec(query, args...)
+	return err
 }

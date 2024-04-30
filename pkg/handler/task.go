@@ -98,7 +98,7 @@ func (h *Handler) getTaskByID(c *gin.Context) {
 
 	task, err := h.services.TodoTask.GetByID(id)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, http.StatusInternalServerError, "task not found")
 		return
 	}
 
@@ -107,6 +107,24 @@ func (h *Handler) getTaskByID(c *gin.Context) {
 
 func (h *Handler) updateTask(c *gin.Context) {
 
+	var input todo.Task
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+	}
+
+	id, err := strconv.Atoi(input.ID)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "invalid id")
+		return
+	}
+
+	if err := h.services.Update(id, input); err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, statusResponse{
+		Status: "Ok",
+	})
 }
 
 func (h *Handler) deleteTask(c *gin.Context) {

@@ -10,6 +10,7 @@ type TodoTask interface {
 	GetAll() ([]todo.Task, error)
 	Search(query string) ([]todo.Task, error)
 	GetByID(id int) (todo.Task, error)
+	Update(id int, task todo.Task) error
 }
 
 type Service struct {
