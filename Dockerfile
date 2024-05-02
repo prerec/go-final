@@ -1,6 +1,6 @@
 FROM golang:1.22.1-alpine AS builder
 
-WORKDIR /usr/local/src
+WORKDIR /app
 
 RUN apk --no-cache add gcc musl-dev
 
@@ -14,12 +14,14 @@ RUN go build -o ./bin/todo_list ./cmd/main.go
 
 FROM alpine AS runner
 
+WORKDIR /app
+
 COPY --from=builder /go/bin/goose /usr/local/bin/goose
-COPY --from=builder /usr/local/src/bin/todo_list /bin
-COPY ./configs /configs
-COPY ./migrations /migrations
-COPY ./web /web
+COPY --from=builder /app/bin/todo_list /app
+COPY ./configs /app/configs
+COPY ./migrations /app/migrations
+COPY ./web /app/web
 
 RUN goose -dir ./migrations sqlite3 ./scheduler.db up
 
-CMD ["./bin/todo_list"]
+CMD ["./todo_list"]
