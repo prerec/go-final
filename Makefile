@@ -3,3 +3,7 @@ build:
 run:
 	goose -dir ./migrations sqlite3 ./scheduler.db up
 	./bin/todo_list
+docker_build:
+	docker build -t todo-service .
+docker_run:
+	docker run -d -p 7540:7540 todo-service

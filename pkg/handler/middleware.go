@@ -55,10 +55,10 @@ func getNextDate(now time.Time, date, repeat, timeLayout string) (string, error)
 
 	} else if strings.Contains(repeat, "w ") {
 		parsedDate, err := time.Parse(timeLayout, date)
-		weekday := int(parsedDate.Weekday())
 		if err != nil {
 			return "", errors.New("invalid weekday." + err.Error())
 		}
+		weekday := int(parsedDate.Weekday())
 
 		var newDate time.Time
 		var weekdays []int
