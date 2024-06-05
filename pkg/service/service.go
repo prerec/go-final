@@ -1,16 +1,16 @@
 package service
 
 import (
-	todo "github.com/prerec/go-final"
+	"github.com/prerec/go-final/pkg/models"
 	"github.com/prerec/go-final/pkg/repository"
 )
 
 type TodoTask interface {
-	Create(task todo.Task) (int, error)
-	GetAll() ([]todo.Task, error)
-	Search(query string) ([]todo.Task, error)
-	GetByID(id int) (todo.Task, error)
-	Update(id int, task todo.Task) error
+	Create(task models.Task) (int, error)
+	GetAll() ([]models.Task, error)
+	Search(query string) ([]models.Task, error)
+	GetByID(id int) (models.Task, error)
+	Update(id int, task models.Task) error
 	Delete(id int) error
 }
 

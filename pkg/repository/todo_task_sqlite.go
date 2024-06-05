@@ -3,9 +3,12 @@ package repository
 import (
 	"errors"
 	"fmt"
-	"github.com/jmoiron/sqlx"
-	todo "github.com/prerec/go-final"
 	"time"
+
+	"github.com/prerec/go-final/pkg/models"
+	"github.com/prerec/go-final/pkg/utils"
+
+	"github.com/jmoiron/sqlx"
 )
 
 type TodoTaskSqlite struct {
@@ -16,7 +19,7 @@ func NewTodoTaskSqlite(db *sqlx.DB) *TodoTaskSqlite {
 	return &TodoTaskSqlite{db: db}
 }
 
-func (r *TodoTaskSqlite) Create(task todo.Task) (int, error) {
+func (r *TodoTaskSqlite) Create(task models.Task) (int, error) {
 	createTaskQuery := fmt.Sprintf("INSERT INTO %s (date, title, comment, repeat) VALUES (?, ?, ?, ?)", schedulerTable)
 	res, err := r.db.Exec(createTaskQuery, task.Date, task.Title, task.Comment, task.Repeat)
 	if err != nil {
@@ -26,17 +29,17 @@ func (r *TodoTaskSqlite) Create(task todo.Task) (int, error) {
 	return int(id), err
 }
 
-func (r *TodoTaskSqlite) GetAll() ([]todo.Task, error) {
-	var tasks []todo.Task
+func (r *TodoTaskSqlite) GetAll() ([]models.Task, error) {
+	var tasks []models.Task
 
-	getTasksQuery := fmt.Sprintf("SELECT * FROM %s ORDER BY date DESC", schedulerTable)
+	getTasksQuery := fmt.Sprintf("SELECT * FROM %s ORDER BY date DESC LIMIT 10", schedulerTable)
 	err := r.db.Select(&tasks, getTasksQuery)
 
 	return tasks, err
 }
 
-func (r *TodoTaskSqlite) Search(query string) ([]todo.Task, error) {
-	var tasks []todo.Task
+func (r *TodoTaskSqlite) Search(query string) ([]models.Task, error) {
+	var tasks []models.Task
 	var searchTaskQuery string
 
 	parsedDate, err := time.Parse("02.01.2006", query)
@@ -56,8 +59,8 @@ func (r *TodoTaskSqlite) Search(query string) ([]todo.Task, error) {
 	return tasks, nil
 }
 
-func (r *TodoTaskSqlite) GetByID(id int) (todo.Task, error) {
-	var task todo.Task
+func (r *TodoTaskSqlite) GetByID(id int) (models.Task, error) {
+	var task models.Task
 
 	getTaskByIdQuery := fmt.Sprintf("SELECT * FROM %s WHERE id = ?", schedulerTable)
 	err := r.db.Get(&task, getTaskByIdQuery, id)
@@ -65,15 +68,15 @@ func (r *TodoTaskSqlite) GetByID(id int) (todo.Task, error) {
 	return task, err
 }
 
-func (r *TodoTaskSqlite) Update(id int, task todo.Task) error {
+func (r *TodoTaskSqlite) Update(id int, task models.Task) error {
 
-	if err := repeatValidate(task.Repeat); err != nil {
+	if err := utils.RepeatValidate(task.Repeat); err != nil {
 		return err
 	}
-	if err := titleValidate(task.Title); err != nil {
+	if err := utils.TitleValidate(task.Title); err != nil {
 		return err
 	}
-	if err := dateValidate(task.Date); err != nil {
+	if err := utils.DateValidate(task.Date); err != nil {
 		return err
 	}
 

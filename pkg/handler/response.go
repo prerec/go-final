@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	todo "github.com/prerec/go-final"
+	"github.com/prerec/go-final/pkg/models"
 	"github.com/sirupsen/logrus"
 )
 
@@ -16,7 +16,7 @@ func newErrorResponse(c *gin.Context, statusCode int, message string) {
 }
 
 type getAllTasksResponse struct {
-	Tasks []todo.Task `json:"tasks"`
+	Tasks []models.Task `json:"tasks"`
 }
 
 type statusResponse struct {

@@ -2,16 +2,18 @@ package main
 
 import (
 	"context"
-	_ "github.com/mattn/go-sqlite3"
-	todo "github.com/prerec/go-final"
-	"github.com/prerec/go-final/pkg/handler"
-	"github.com/prerec/go-final/pkg/repository"
-	"github.com/prerec/go-final/pkg/service"
-	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/prerec/go-final/pkg/handler"
+	"github.com/prerec/go-final/pkg/repository"
+	"github.com/prerec/go-final/pkg/server"
+	"github.com/prerec/go-final/pkg/service"
+
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 func main() {
@@ -35,7 +37,7 @@ func main() {
 	services := service.NewService(repos)
 	handlers := handler.NewHandler(services)
 
-	srv := new(todo.Server)
+	srv := new(server.Server)
 	go func() {
 		if err := srv.Run(viper.GetString("port"), handlers.InitRoutes()); err != nil {
 			logrus.Fatalf("error occurred while running server: %s", err.Error())
@@ -43,18 +45,23 @@ func main() {
 	}()
 
 	logrus.Print("Application started")
+	logrus.Printf("Server listening on port %s", viper.GetString("port"))
 
 	quit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
 
 	logrus.Print("Application shutting down")
-	if err := srv.Shutdown(context.Background()); err != nil {
-		logrus.Fatalf("server shutdown fail: %s", err.Error())
-	}
-	if err := db.Close(); err != nil {
-		logrus.Fatalf("database connection close fail: %s", err.Error())
-	}
+	go func() {
+		if err := srv.Shutdown(context.Background()); err != nil {
+			logrus.Fatalf("server shutdown fail: %s", err.Error())
+		}
+		if err := db.Close(); err != nil {
+			logrus.Fatalf("database connection close fail: %s", err.Error())
+		}
+	}()
+
+	logrus.Print("Application gracefully stopped!")
 
 }
 

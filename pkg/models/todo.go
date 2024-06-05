@@ -1,4 +1,4 @@
-package todo
+package models
 
 type Task struct {
 	ID      string `json:"id"`

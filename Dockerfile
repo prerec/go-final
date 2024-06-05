@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN apk --no-cache add gcc musl-dev
 
-COPY ["go.mod", "go.sum", "./"]
+COPY . .
 
 RUN go mod download
 RUN go install github.com/pressly/goose/v3/cmd/goose@latest

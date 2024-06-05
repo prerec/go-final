@@ -1,4 +1,4 @@
-package repository
+package utils
 
 import (
 	"errors"
@@ -7,16 +7,14 @@ import (
 	"time"
 )
 
-const timeLayout = "20060102"
-
-func titleValidate(title string) error {
+func TitleValidate(title string) error {
 	if title == "" {
 		return errors.New("title is required")
 	}
 	return nil
 }
 
-func repeatValidate(repeat string) error {
+func RepeatValidate(repeat string) error {
 	if repeat == "" {
 		return errors.New("repeat is empty")
 	}
@@ -44,7 +42,7 @@ func repeatValidate(repeat string) error {
 	return nil
 }
 
-func dateValidate(date string) error {
+func DateValidate(date string) error {
 	_, err := time.Parse(timeLayout, date)
 	if err != nil {
 		return errors.New("invalid date." + err.Error())
