@@ -43,7 +43,7 @@ func RepeatValidate(repeat string) error {
 }
 
 func DateValidate(date string) error {
-	_, err := time.Parse(timeLayout, date)
+	_, err := time.Parse(TimeLayout, date)
 	if err != nil {
 		return errors.New("invalid date." + err.Error())
 	}

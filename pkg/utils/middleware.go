@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-const timeLayout = "20060102"
+const TimeLayout = "20060102"
 
 func TimeValidate(date string) error {
-	if _, err := time.Parse(timeLayout, date); err != nil {
+	if _, err := time.Parse(TimeLayout, date); err != nil {
 		return err
 	}
 	return nil

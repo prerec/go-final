@@ -9,7 +9,6 @@ COPY . .
 RUN go mod download
 RUN go install github.com/pressly/goose/v3/cmd/goose@latest
 
-COPY . ./
 RUN go build -o ./bin/todo_list ./cmd/main.go
 
 FROM alpine AS runner

@@ -15,6 +15,11 @@ type TodoTaskSqlite struct {
 	db *sqlx.DB
 }
 
+const (
+	limit            = 10
+	searchTimeLayout = "02.01.2006"
+)
+
 func NewTodoTaskSqlite(db *sqlx.DB) *TodoTaskSqlite {
 	return &TodoTaskSqlite{db: db}
 }
@@ -32,7 +37,7 @@ func (r *TodoTaskSqlite) Create(task models.Task) (int, error) {
 func (r *TodoTaskSqlite) GetAll() ([]models.Task, error) {
 	var tasks []models.Task
 
-	getTasksQuery := fmt.Sprintf("SELECT * FROM %s ORDER BY date DESC LIMIT 10", schedulerTable)
+	getTasksQuery := fmt.Sprintf("SELECT * FROM %s ORDER BY date DESC LIMIT %d", schedulerTable, limit)
 	err := r.db.Select(&tasks, getTasksQuery)
 
 	return tasks, err
@@ -42,9 +47,9 @@ func (r *TodoTaskSqlite) Search(query string) ([]models.Task, error) {
 	var tasks []models.Task
 	var searchTaskQuery string
 
-	parsedDate, err := time.Parse("02.01.2006", query)
+	parsedDate, err := time.Parse(searchTimeLayout, query)
 	if err == nil {
-		searchDate := parsedDate.Format("20060102")
+		searchDate := parsedDate.Format(utils.TimeLayout)
 		searchTaskQuery = fmt.Sprintf("SELECT * FROM %s WHERE date = ?", schedulerTable)
 		err = r.db.Select(&tasks, searchTaskQuery, searchDate)
 	} else {

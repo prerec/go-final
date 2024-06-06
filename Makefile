@@ -7,3 +7,7 @@ docker_build:
 	docker build -t todo-service .
 docker_run:
 	docker run -d -p 7540:7540 todo-service
+goose:
+	go install github.com/pressly/goose/v3/cmd/goose@latest
+test:
+	go test ./tests
